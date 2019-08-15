@@ -1,11 +1,11 @@
 # Xamarin.Forms.Mvvm
 
-Messaging Example.. for you, David. ;) 
+## Messaging Example.. for you, David. ;) 
 
 Note: The reason it's simpler/lighter than MessagingCenter is because the MessagingCenter does not need to hold the reference to the subscription. The subscriber is responsibile for that. It's convention-based. 
 
 
-Subscribing:
+#### Subscribing:
 Make a private field scoped to the class to hold the reference of the delegate. Field and delegate should be in the same class/instance.
 
 ```
@@ -21,12 +21,12 @@ SubscriptionResponseToken = SubscriptionResponse;
 Messaging.Subscribe<SomeParamType>("channel_to_publsh_on", "unique_key_for_subscription", SubscriptionResponseToken);
 ```
 
-Publishing:
+#### Publishing:
 ```
 Messaging.Publish<SomeType>("channel_to_publsh_on", SomeInstanceOfType);
 ```
 
-Simpler API surface for a BaseViewModel.cs. Totally optional.
+Simpler API surface for a BaseViewModel. Totally optional.
 
 ```
 protected Messaging Messaging => Messaging.Instance;
