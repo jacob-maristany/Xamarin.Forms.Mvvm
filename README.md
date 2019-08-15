@@ -2,7 +2,7 @@
 
 ## Messaging Example.. for you, David. ;) 
 
-*Note: The reason it's simpler/lighter than `MessagingCenter` is because the `MessagingCenter` does not need to hold the reference to the subscription. The subscriber is responsibile for that. It's convention-based.*
+Note: The reason it's simpler/lighter than `MessagingCenter` is because `Messaging` does not need to hold the reference to the subscription. The subscriber is responsibile for that. This is a convention-based approach. 
 
 
 #### Subscribing:
