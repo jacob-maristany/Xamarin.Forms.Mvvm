@@ -25,3 +25,9 @@ Publishing:
 ```
 Messaging.Publish<SomeType>("channel_to_publsh_on", SomeInstanceOfType);
 ```
+
+Simpler API surface for a BaseViewModel.cs. Totally optional.
+
+```
+protected Messaging Messaging => Messaging.Instance;
+```
