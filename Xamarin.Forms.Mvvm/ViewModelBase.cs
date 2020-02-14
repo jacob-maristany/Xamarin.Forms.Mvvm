@@ -21,9 +21,8 @@ namespace Xamarin.Forms.Mvvm
         private WeakReference<MasterDetailPageBase> _masterDetailPage;
         public MasterDetailPageBase MasterDetailPage => _masterDetailPage.TryGetTarget(out MasterDetailPageBase target) ? target : null;
         public void SetWeakMasterDetailpage(MasterDetailPageBase page) => _masterDetailPage = new WeakReference<MasterDetailPageBase>(page);
-
         protected ApplicationBase CurrentApplication => Application.Current as ApplicationBase;
-        private INavigation Navigation => Page?.Navigation ?? Application.Current.MainPage.Navigation;
+        protected INavigation Navigation => Page?.Navigation ?? Application.Current.MainPage.Navigation;
 
         protected Messaging Messaging => Messaging.Instance;
 
@@ -41,6 +40,7 @@ namespace Xamarin.Forms.Mvvm
 
         public Task<Page> PopAsync(Dictionary<string, object> navigationParams = null, bool animated = true) => PopAsyncInternal(navigationParams, animated);
         public Task<Page> PopModalAsync(bool animated = true) => Navigation.PopModalAsync(animated);
+        public Task<Page> PopModalAsync(Dictionary<string, object> navigationParams, bool animated = true) => PopModalAsyncInternal(navigationParams, animated);
         public Task PopToRootAsync(bool animated = true) => Navigation.PopToRootAsync(animated);
         public void RemovePage(Page page = null) => Navigation.RemovePage(page ?? Page);
 
@@ -83,7 +83,7 @@ namespace Xamarin.Forms.Mvvm
             await Task.CompletedTask;
         }
 
-        public async Task PopToPageAsync<TPage>(bool animated = true)
+        public async Task PopToPageAsync<TPage>(Dictionary<string, object> navigationParams = null, bool animated = true)
             where TPage : ContentPageBase
         {
             var navList = NavigationStack.ToList();
@@ -95,7 +95,7 @@ namespace Xamarin.Forms.Mvvm
                 {
                     RemovePage(navList[i]);
                 }
-                await PopAsync(null, animated);
+                await PopAsync(navigationParams, animated);
             }
         }
 
@@ -110,22 +110,22 @@ namespace Xamarin.Forms.Mvvm
         public Task PushAsync<TPage, TViewModel>(bool animated = true)
             where TPage : ContentPageBase
             where TViewModel : ViewModelBase
-            => PushAsyncInternal<TPage, TViewModel>(null, animated, false);
+            => PushAsyncInternal<TPage, TViewModel>(null, animated);
 
         public Task PushAsync<TPage, TViewModel>(Dictionary<string, object> navigationParams, bool animated = true)
             where TPage : ContentPageBase
             where TViewModel : ViewModelBase
-            => PushAsyncInternal<TPage, TViewModel>(navigationParams, animated, false);
+            => PushAsyncInternal<TPage, TViewModel>(navigationParams, animated);
 
-        public Task PushModalAsync<TPage, TViewModel>(bool animated = true)
+        public Task PushModalAsync<TPage, TViewModel>(bool wrapInNavigationPage = true, bool animated = true)
             where TPage : ContentPageBase
             where TViewModel : ViewModelBase
-            => PushAsyncInternal<TPage, TViewModel>(null, animated, true);
+            => PushModalAsyncInternal<TPage, TViewModel>(null, wrapInNavigationPage, animated);
 
-        public Task PushModalAsync<TPage, TViewModel>(Dictionary<string, object> navigationParams, bool animated = true)
+        public Task PushModalAsync<TPage, TViewModel>(Dictionary<string, object> navigationParams, bool wrapInNavigationPage = true, bool animated = true)
             where TPage : ContentPageBase
             where TViewModel : ViewModelBase
-            => PushAsyncInternal<TPage, TViewModel>(navigationParams, animated, true);
+            => PushModalAsyncInternal<TPage, TViewModel>(navigationParams, wrapInNavigationPage, animated);
 
         private async Task PushMasterDetailAsyncInternal<TPage>(Dictionary<string, object> navigationParams = null, bool animated = true, bool modal = false)
             where TPage : MasterDetailPageBase
@@ -142,20 +142,20 @@ namespace Xamarin.Forms.Mvvm
             }
         }
 
-        private async Task PushAsyncInternal<TPage, TViewModel>(Dictionary<string, object> navigationParams = null, bool animated = true, bool modal = false)
+        private async Task PushAsyncInternal<TPage, TViewModel>(Dictionary<string, object> navigationParams, bool animated)
             where TPage : ContentPageBase
             where TViewModel : ViewModelBase
         {
             Page page = await CurrentApplication.CreatePage<TPage, TViewModel>(navigationParams);
+            await Navigation.PushAsync(page, animated);
+        }
 
-            if (modal)
-            {
-                await Navigation.PushModalAsync(page, animated);
-            }
-            else
-            {
-                await Navigation.PushAsync(page, animated);
-            }
+        private async Task PushModalAsyncInternal<TPage, TViewModel>(Dictionary<string, object> navigationParams, bool wrapInNavigationPage, bool animated)
+            where TPage : ContentPageBase
+            where TViewModel : ViewModelBase
+        {
+            Page page = await CurrentApplication.CreatePage<TPage, TViewModel>(wrapInNavigationPage, navigationParams);
+            await Navigation.PushModalAsync(page, animated);
         }
 
         private async Task<Page> PopAsyncInternal(Dictionary<string, object> navigationParams = null, bool animated = true)
@@ -169,6 +169,34 @@ namespace Xamarin.Forms.Mvvm
             Page popped = await Navigation.PopAsync(animated);
 
             return popped;
+        }
+
+        private async Task<Page> PopModalAsyncInternal(Dictionary<string, object> navigationParams, bool animated = true)
+        {
+            if (ModalStack.Count == 1 || navigationParams == null || navigationParams.Count == 0)
+            {
+                return await Navigation.PopModalAsync(animated);
+            }
+            else
+            {
+                Page page = ModalStack[ModalStack.Count - 2];
+                ViewModelBase vm;
+
+                if (page is NavigationPage navPage)
+                {
+                    vm = navPage.CurrentPage.BindingContext as ViewModelBase;
+                }
+                else
+                {
+                    vm = page.BindingContext as ViewModelBase;
+                }
+
+                vm?.PoppingTo(navigationParams);
+
+                Page popped = await PopModalAsync(animated);
+
+                return popped;
+            }
         }
     }
 }

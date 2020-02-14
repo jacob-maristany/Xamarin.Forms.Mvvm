@@ -330,3 +330,5 @@ ASALocalRun/
 .mfractor/
 
 \.DS_Store
+
+Xamarin.Forms.Mvvm.Droid/Resources/Resource.designer.cs
