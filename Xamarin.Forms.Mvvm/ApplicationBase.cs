@@ -45,7 +45,10 @@ namespace Xamarin.Forms.Mvvm
 
             if (wrapInNavigationPage)
             {
-                return new NavigationPage(page);
+                return new NavigationPage(page)
+                {
+                    Title = nameof(TPage) // HACK: Bug in Forms where even a Nav page needs a title in the master pane
+                };
             }
 
             return page;
@@ -59,13 +62,108 @@ namespace Xamarin.Forms.Mvvm
 
             Page masterPage = await masterDetailPage.CreateMasterPage();
             masterDetailPage.Master = masterPage;
-            (masterPage.BindingContext as ViewModelBase)?.SetWeakMasterDetailpage(masterDetailPage);
+
+            var rootMasterPage = masterPage is NavigationPage ? ((NavigationPage)masterPage).RootPage : masterPage;
+            (rootMasterPage.BindingContext as ViewModelBase)?.SetWeakMasterDetailpage(masterDetailPage);
 
             Page detailPage = await masterDetailPage.CreateDetailPage();
             masterDetailPage.Detail = detailPage;
-            (detailPage.BindingContext as ViewModelBase)?.SetWeakMasterDetailpage(masterDetailPage);
+
+            var rootDetailPage = detailPage is NavigationPage ? ((NavigationPage)detailPage).RootPage : detailPage;
+            (rootDetailPage.BindingContext as ViewModelBase)?.SetWeakMasterDetailpage(masterDetailPage);
 
             return masterDetailPage;
+        }
+
+
+        public async Task<Page> CreateTab<TView, TViewModel>(
+            Dictionary<string, object> navigationParams = null,
+            bool wrapInNavigationPage = false,
+            Style navigationStyle = null)
+            where TView : ContentPageBase
+            where TViewModel : ViewModelBase
+        {
+            var page = Container.Resolve<TView>();
+            var vm = Container.Resolve<TViewModel>();
+            await vm.Initialize(navigationParams);
+
+            vm.SetWeakPage((ContentPageBase)page);
+            page.BindingContext = vm;
+            ((ContentPageBase)page).Initialize();
+
+            if (wrapInNavigationPage)
+            {
+                if (navigationStyle == null)
+                {
+                    return new NavigationPage(page)
+                    {
+                        Title = page.Title,
+                        IconImageSource = page.IconImageSource,
+                    };
+                }
+                else 
+                {
+                    return new NavigationPage(page)
+                    {
+                        Title = page.Title,
+                        IconImageSource = page.IconImageSource,
+                        Style = navigationStyle 
+                    };
+                }
+               
+            }
+            return page;
+        }
+
+
+        public async Task<Page> CreateTabForMasterDetail<MView, MViewModel, DView, DViewModel>(
+            Dictionary<string, object> masterNavigationParams = null,
+            Dictionary<string, object> detailNavigationParams = null,
+            bool wrapDetailInNavigationPage = false,
+            Style navigationStyle = null)
+            where MView : ContentPageBase
+            where DView : ContentPageBase
+            where MViewModel : ViewModelBase
+            where DViewModel : ViewModelBase
+        {
+            MasterDetailPage mdPage;
+            NavigationPage navDetailPage;
+
+            var masterPage = await CreatePage<MView, MViewModel>(masterNavigationParams);
+            var detailPage = await CreatePage<DView, DViewModel>(detailNavigationParams);
+
+            if (wrapDetailInNavigationPage)
+            {
+                navDetailPage = (navigationStyle == null) 
+                    ? new NavigationPage(detailPage)
+                    {
+                        Title = detailPage.Title,
+                    } 
+                    : new NavigationPage(detailPage)
+                    {
+                        Title = detailPage.Title,
+                        Style = navigationStyle
+                    };
+
+                mdPage = new MasterDetailPage
+                {
+                    Master = masterPage,
+                    Detail = navDetailPage,
+                    Title = masterPage.Title,
+                    IconImageSource = masterPage.IconImageSource
+                };
+            }
+            else 
+            {
+                mdPage = new MasterDetailPage
+                {
+                    Master = masterPage,
+                    Detail = detailPage,
+                    Title = masterPage.Title,
+                    IconImageSource = masterPage.IconImageSource
+                };
+            }
+            return mdPage;
         }
     }
 }
