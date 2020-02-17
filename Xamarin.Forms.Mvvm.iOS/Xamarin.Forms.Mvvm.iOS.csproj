@@ -45,13 +45,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.Forms.Mvvm\Xamarin.Forms.Mvvm.csproj">
-      <Project>{BD7197C0-061B-4E84-9122-5BD1D5098FE2}</Project>
+      <Project>{15EB2569-0DB5-4F9C-996D-C32FC433D238}</Project>
       <Name>Xamarin.Forms.Mvvm</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms">
       <Version>4.2.0.910310</Version>
+    </PackageReference>
+    <PackageReference Include="Unity">
+      <Version>5.10.3</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
