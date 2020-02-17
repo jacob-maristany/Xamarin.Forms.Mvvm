@@ -116,6 +116,8 @@ public partial class AwesomePage : ContentPageBase
     public override void Initialize()
     {
         // Any heavy logic here that doesn't need to be in the constructor.
+	// Do not do too much here as it will slow down page creation and navigation.
+	// Task.Run(...) and Device.BeingInvokeOnMainThread(...) are valid strategies here.
     }
 }
 ```
@@ -238,6 +240,9 @@ public class NextViewModel : ViewModelBase
 {
     public async override Task Initialize(Dictionary<string, object> navigationsParams = null)
     {
+    	// Do not do too much here as it will slow down page creation and navigation.
+	// Task.Run(...) and Device.BeingInvokeOnMainThread(...) are valid strategies here.
+    
         if (navigationsParams.Containskey("important-item")}
         {
             // We got something important here!
