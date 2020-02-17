@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mvvm:ContentPageBase
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Xamarin.Forms.Mvvm.Sample.Pages.MasterPage"
+
+    xmlns:mvvm="clr-namespace:Xamarin.Forms.Mvvm;assembly=Xamarin.Forms.Mvvm"
+
+    Title="Master"
+    >
+
+    <StackLayout
+        HorizontalOptions="Center"
+        VerticalOptions="Center">
+        <Entry
+            Placeholder="Enter text to push"
+            Text="{Binding EnteredText}" />
+        <Button
+            Command="{Binding PushDetailCommand}"
+            Text="Push Detail with text" />
+    </StackLayout>
+
+</mvvm:ContentPageBase>
