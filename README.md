@@ -5,6 +5,8 @@ This project includes a simple and light MVVM framework designed to be as close 
 ### Unity
 This MVVM framework supports dependency injection (DI) for your Pages and view models using Unity as an IoC container.  Any reference to an API denoting a "Container" implies that the MVVM framework is interacting with UnityContainer in order to register entries to be injected in any Page or view model you Create via the MVVM framework.
 
+Note: A major 'TODO" in this framework is to create a super lightweight IOC container and DI support that ties into Xamarin.Forms.DependencySerice and removes the Unity nuget depdendency. 
+
 ### NotifyPropertyChanged
 This is a basic and common implemetation of `INotifyPropertyChanged`.  `ViewModelBase` implements this class.  It's exposed publicly for your convienence.
 
