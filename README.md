@@ -83,7 +83,7 @@ Bootstrapping in MainActivity.cs for Android:
         var app = new App();
         app.Init(PlatformInitializeContainer);
 
-        LoadApplication(checklistApp);
+        LoadApplication(app);
     }
 
     public void PlatformInitializeContainer(UnityContainer container)
@@ -158,7 +158,7 @@ using System.Threading.Tasks;
 using EY.Mobile.XamarinForms;
 using Xamarin.Forms;
 
-namespace AT.Mobile.Checklist.Core.Pages
+namespace AwesomeApp.Pages
 {
     public partial class TabletPage : MasterDetailPageBase
     {
@@ -283,7 +283,8 @@ Using a translation key in XAML:
 <s:ContentPageBase
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="AT.Mobile.Checklist.Core.Pages.AzureLoginPage"
+    x:Class="AwesomeApp.Pages.AwesomePage
+	     "
     
     xmlns:s="clr-namespace:EY.Mobile.XamarinForms;assembly=EY.Mobile.XamarinForms"
 
